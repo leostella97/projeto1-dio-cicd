@@ -1,5 +1,6 @@
 stages:
   - test
+  - build
 
 realizar_testes:
   stage: test
@@ -16,3 +17,24 @@ realizar_testes:
     reports:
     ##onde vai gerar com o padrão de xml
       junit: app/junit.xml
+build_images:
+  stage: build
+  needs:
+    - realizar_testes
+  image: docker:20.10.16
+  services:
+  ##dind é obrigatório para uso de serviço
+    - docker:20.10.16-dind
+
+  variables:
+    DOCKER_TLS_CERTFIR: "/certs"
+  ##executar docker no docker precisa da imagem e do serviço com a versão e também da variável com o diretório dos certificados
+  
+  before_script:
+  ##antes do script passar as variáveis criadas no gitlab com o usuário e a senha definidas nas respectivas variáveis, -u de usuário e -p de password, começando com cifrão
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
+
+  script:
+  ##especifica o usuário e onde está o app, como está na raíz é específicada com ponto 
+    - docker build -t $REGISTRY_USER/gitlab-cicd-node:1.0  .
+    - docker push $REGISTRY_USER/gitlab-cicd-node:1.0
