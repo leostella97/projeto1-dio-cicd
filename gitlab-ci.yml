@@ -9,3 +9,10 @@ realizar_testes:
     - npm install 
   script:
     - npm test
+  ##gerar relatório
+  artifacts:
+  ##gerar sempre
+    when: always
+    reports:
+    ##onde vai gerar com o padrão de xml
+      junit: app/junit.xml
